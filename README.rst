@@ -17,4 +17,4 @@ Run:
 
   sbt xitrum-package
 
-All dependency .jar files will be copied to targe/xitrum/lib directory.
+All dependency .jar files will be copied to target/xitrum/lib directory.
