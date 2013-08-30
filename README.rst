@@ -2,7 +2,7 @@ This plugin adds task "xitrum-package" to your `SBT <http://www.scala-sbt.org/>`
 dependency .jar files for standalone Scala programs. Compared to "one-jar"
 solutions, the .jar files are left "as is".
 
-Compatible SBT versions: 0.12
+Supported SBT versions: 0.13, 0.12 (SBT 0.12 is supported up to xitrum-sbt-plugin 1.4)
 
 Usage
 -----
