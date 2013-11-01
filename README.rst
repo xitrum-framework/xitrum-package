@@ -16,6 +16,12 @@ Add to project/plugins.sbt:
 
   addSbtPlugin("tv.cntt" % "xitrum-plugin" % "1.4")
 
+Add to build.sbt:
+
+::
+
+  XitrumPlugin.copy("dirToCopy", "fileToCopy")
+
 Run:
 
 ::
@@ -23,7 +29,40 @@ Run:
   sbt xitrum-package
 
 All dependency .jar files and .jar files generated from your project
-will be copied to ``target/xitrum/lib`` directory.
+will be copied to ``target/xitrum`` directory.
+
+::
+
+  project/
+    plugins.sbt
+
+  src/
+    ...
+
+  dirToCopy/      <-- Directory to copy
+    file1
+    file2
+
+  fileToCopy      <-- File to copy
+
+  target/
+    xitrum/
+      lib/        <-- .jar files will be collected here
+        dep1.jar
+        dep2.jar
+        project.jar
+
+      dirToCopy/  <-- Directory will be copied here
+        file1
+        file2
+
+      fileToCopy  <-- File will be copied here
+
+Note that even when you don't need to copy anything, you have to write:
+
+::
+
+  XitrumPlugin.copy()
 
 Boot script
 -----------
