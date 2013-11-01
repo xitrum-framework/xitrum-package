@@ -30,7 +30,7 @@ object XitrumPlugin extends Plugin {
 
   val copiesKey = SettingKey[Seq[String]]("xitrum-copies", "List of files and directories to copy")
 
-  def skip = Seq(skipKey := true, copiesKey := Seq())
+  val skip = Seq(skipKey := true, copiesKey := Seq())
 
   def copy(fileNames: String*) = Seq(skipKey := false, copiesKey := fileNames)
 
