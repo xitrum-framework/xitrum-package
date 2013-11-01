@@ -14,7 +14,7 @@ Add to project/plugins.sbt:
 
 ::
 
-  addSbtPlugin("tv.cntt" % "xitrum-plugin" % "1.4")
+  addSbtPlugin("tv.cntt" % "xitrum-plugin" % "1.5")
 
 Add to build.sbt:
 
@@ -63,6 +63,36 @@ Note that even when you don't need to copy anything, you have to write:
 ::
 
   XitrumPlugin.copy()
+
+Multiple-module project
+-----------------------
+
+If your SBT project has
+`many modules (subprojects) <http://www.scala-sbt.org/0.13.0/docs/Getting-Started/Multi-Project.html>`_
+and you only want to ``xitrum-package`` several of them, you can skip the
+subproject you want using ``XitrumPlugin.skip``:
+
+::
+
+  val sharedSettings = ...
+
+  lazy val module1 = Project(
+    id = "module1",
+    base = file("module1"),
+    settings = sharedSettings ++ Seq(
+      name := "module1"
+    ) ++ XitrumPlugin.skip
+  )
+
+  lazy val app = Project(
+    id = "main-app",
+    base = file("main-app"),
+    settings = sharedSettings ++ Seq(
+      name := "main-app"
+    ) ++ XitrumPlugin.copy("bin", "config", "public")
+  ).dependsOn(module1)
+
+Example: https://github.com/ngocdaothanh/xitrum-multimodule-demo
 
 Boot script
 -----------

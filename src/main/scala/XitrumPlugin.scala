@@ -8,9 +8,13 @@ object XitrumPlugin extends Plugin {
   // xitrumPackageNeedsPackageBin must be after xitrumPackageTask
   override lazy val settings = Seq(xitrumPackageTask, xitrumPackageNeedsPackageBin)
 
-  val copies = SettingKey[Seq[String]]("xitrum-copies", "List of files and directories to copy")
+  val skipKey = SettingKey[Boolean]("xitrum-skip", "Do not package the current project (useful when you use SBT multiproject feature)")
 
-  def copy(fileNames: String*) = Seq(copies := fileNames)
+  val copiesKey = SettingKey[Seq[String]]("xitrum-copies", "List of files and directories to copy")
+
+  def skip = Seq(skipKey := true, copiesKey := Seq())
+
+  def copy(fileNames: String*) = Seq(skipKey := false, copiesKey := fileNames)
 
   //----------------------------------------------------------------------------
 
@@ -21,55 +25,61 @@ object XitrumPlugin extends Plugin {
     // dependencyClasspath: both internalDependencyClasspath and externalDependencyClasspath
     // internalDependencyClasspath ex: classes directories
     // externalDependencyClasspath ex: .jar files
-    (dependencyClasspath in Runtime, baseDirectory, target,    crossTarget,  copies) map {
-    (libs,                           baseDir,       targetDir, jarOutputDir, copyFiles) =>
+    (dependencyClasspath in Runtime, baseDirectory, target,    crossTarget,  skipKey, copiesKey) map {
+    (libs,                           baseDir,       targetDir, jarOutputDir, skip,    copyFileNames) =>
     try {
-      val packageDir = targetDir / "xitrum"
-      deleteFileOrDirectory(packageDir)
-      packageDir.mkdirs()
-
-      // Copy dependencies to lib directory
-      val libDir = packageDir / "lib"
-      libs.foreach { lib =>
-        val file = lib.data
-
-        if (file.exists) {
-          if (file.isDirectory) {
-            // This dependency may be "classes" directory from SBT multimodule (multiproject)
-            // http://www.scala-sbt.org/0.13.0/docs/Getting-Started/Multi-Project.html
-            //
-            // Ex:
-            // /Users/ngoc/src/xitrum-multimodule-demo/module1/target/scala-2.10/classes
-            // /Users/ngoc/src/xitrum-multimodule-demo/module1/target/scala-2.10/xitrum-multimodule-demo-module1_2.10-1.0-SNAPSHOT.jar
-            if (file.name == "classes") {
-              val upperDir = file / ".."
-              (upperDir * "*.jar").get.foreach { f =>
-                val fname = f.name
-                if (!fname.endsWith("-sources.jar") && !fname.endsWith("-javadoc.jar"))
-                  IO.copyFile(f, libDir / f.name)
-              }
-            }
-          } else {
-            IO.copyFile(file, libDir / file.name)
-          }
-        }
-      }
-
-      // Copy .jar files created after running "sbt package" to lib directory
-      // (see xitrumPackageNeedsPackageBin)
-      (jarOutputDir * "*.jar").get.foreach { f => IO.copyFile(f, libDir / f.name) }
-
-      copyFiles.foreach { fName => doCopy(fName, baseDir, packageDir) }
-
-      println("Packaged to " + packageDir)
+      if (!skip) doPackage(libs, baseDir, targetDir, jarOutputDir, copyFileNames)
     } catch {
-      case e: Exception => e.printStackTrace
+      case e: Exception =>
+        println("xitrum-package failed, reason:")
+        e.printStackTrace()
     }
   }
 
   val xitrumPackageNeedsPackageBin = xitrumPackageKey <<= xitrumPackageKey.dependsOn(packageBin in Compile)
 
   //----------------------------------------------------------------------------
+
+  private def doPackage(libs: Seq[Attributed[File]], baseDir: File, targetDir: File, jarOutputDir: File, copyFileNames: Seq[String]) {
+    val packageDir = targetDir / "xitrum"
+    deleteFileOrDirectory(packageDir)
+    packageDir.mkdirs()
+
+    // Copy dependencies to lib directory
+    val libDir = packageDir / "lib"
+    libs.foreach { lib =>
+      val file = lib.data
+
+      if (file.exists) {
+        if (file.isDirectory) {
+          // This dependency may be "classes" directory from SBT multimodule (multiproject)
+          // http://www.scala-sbt.org/0.13.0/docs/Getting-Started/Multi-Project.html
+          //
+          // Ex:
+          // /Users/ngoc/src/xitrum-multimodule-demo/module1/target/scala-2.10/classes
+          // /Users/ngoc/src/xitrum-multimodule-demo/module1/target/scala-2.10/xitrum-multimodule-demo-module1_2.10-1.0-SNAPSHOT.jar
+          if (file.name == "classes") {
+            val upperDir = file / ".."
+            (upperDir * "*.jar").get.foreach { f =>
+              val fname = f.name
+              if (!fname.endsWith("-sources.jar") && !fname.endsWith("-javadoc.jar"))
+                IO.copyFile(f, libDir / f.name)
+            }
+          }
+        } else {
+          IO.copyFile(file, libDir / file.name)
+        }
+      }
+    }
+
+    // Copy .jar files created after running "sbt package" to lib directory
+    // (see xitrumPackageNeedsPackageBin)
+    (jarOutputDir * "*.jar").get.foreach { f => IO.copyFile(f, libDir / f.name) }
+
+    copyFileNames.foreach { fName => doCopy(fName, baseDir, packageDir) }
+
+    println("Packaged to " + packageDir)
+  }
 
   private def deleteFileOrDirectory(file: File) {
     if (file.isDirectory) {
