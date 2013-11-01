@@ -4,7 +4,7 @@ organization := "tv.cntt"
 
 name := "xitrum-plugin"
 
-version := "1.4"
+version := "1.5-SNAPSHOT"
 
 // Kenji Yoshida (https://github.com/xuwei-k):
 // scalaVersion should not be specified for SBT plugin; use default scalaVersion
@@ -17,3 +17,9 @@ scalacOptions ++= Seq("-deprecation", "-feature", "-unchecked")
 // are run with Java 6
 // java.lang.UnsupportedClassVersionError: Unsupported major.minor version 51.0
 javacOptions ++= Seq("-source", "1.6", "-target", "1.6")
+
+//------------------------------------------------------------------------------
+
+// Skip API doc generation to speedup "publish-local" while developing.
+// Comment out this line when publishing to Sonatype.
+publishArtifact in (Compile, packageDoc) := false
