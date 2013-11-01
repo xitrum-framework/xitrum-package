@@ -2,7 +2,7 @@ sbtPlugin := true
 
 organization := "tv.cntt"
 
-name := "xitrum-plugin"
+name := "xitrum-package"
 
 version := "1.5-SNAPSHOT"
 

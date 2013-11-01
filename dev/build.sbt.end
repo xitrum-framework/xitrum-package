@@ -1,3 +1,4 @@
+
 // Publish to Sonatype
 // https://github.com/sbt/sbt.github.com/blob/gen-master/src/jekyll/using_sonatype.md
 
@@ -14,17 +15,17 @@ publishArtifact in Test := false
 pomIncludeRepository := { _ => false }
 
 pomExtra := (
-  <url>http://ngocdaothanh.github.com/xitrum/</url>
+  <url>https://github.com/ngocdaothanh/xitrum-package</url>
   <licenses>
     <license>
       <name>MIT</name>
-      <url>https://github.com/ngocdaothanh/xitrum-sbt-plugin/blob/master/MIT-LICENSE</url>
+      <url>https://github.com/ngocdaothanh/xitrum-package/blob/master/MIT-LICENSE</url>
       <distribution>repo</distribution>
     </license>
   </licenses>
   <scm>
-    <url>git@github.com:ngocdaothanh/xitrum-sbt-plugin.git</url>
-    <connection>scm:git:git@github.com:ngocdaothanh/xitrum-sbt-plugin.git</connection>
+    <url>git@github.com:ngocdaothanh/xitrum-package.git</url>
+    <connection>scm:git:git@github.com:ngocdaothanh/xitrum-package.git</connection>
   </scm>
   <developers>
     <developer>

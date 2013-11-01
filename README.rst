@@ -3,9 +3,9 @@ project to collect all dependency .jar files for standalone Scala programs. Comp
 `one-jar <http://www.scala-sbt.org/release/docs/Community/Community-Plugins#one-jar-plugins>`_
 solutions, the .jar files are left "as is".
 
-Supported SBT versions: 0.13, 0.12 (SBT 0.12 is supported up to xitrum-sbt-plugin 1.4)
+Supported SBT versions: 0.13
 
-xitrum-sbt-plugin is used in `Scala web framework Xitrum <http://ngocdaothanh.github.io/xitrum/>`_.
+xitrum-package is used in `Scala web framework Xitrum <http://ngocdaothanh.github.io/xitrum/>`_.
 
 Usage
 -----
@@ -14,7 +14,7 @@ Add to project/plugins.sbt:
 
 ::
 
-  addSbtPlugin("tv.cntt" % "xitrum-plugin" % "1.5")
+  addSbtPlugin("tv.cntt" % "xitrum-package" % "1.5")
 
 Add to build.sbt:
 

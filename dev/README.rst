@@ -10,7 +10,7 @@ To delete the local publish:
 
 ::
 
-  $ find ~/.ivy2 -name *xitrum-sbt-plugin* -delete
+  $ find ~/.ivy2 -name *xitrum-package* -delete
 
 Publish to Sonatype
 -------------------
