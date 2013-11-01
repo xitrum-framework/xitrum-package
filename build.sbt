@@ -4,7 +4,7 @@ organization := "tv.cntt"
 
 name := "xitrum-package"
 
-version := "1.5-SNAPSHOT"
+version := "1.6-SNAPSHOT"
 
 // Kenji Yoshida (https://github.com/xuwei-k):
 // scalaVersion should not be specified for SBT plugin; use default scalaVersion
