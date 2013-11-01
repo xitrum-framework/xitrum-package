@@ -3,6 +3,24 @@ import java.io.File
 import sbt._
 import Keys._
 
+// See https://github.com/sbt/sbt/issues/944
+// Add option preserveExecutable to IO.copyFile and IO.copyDirectory
+object PreserveExecutableIO {
+  // http://stackoverflow.com/questions/5368724
+  def copy(source: File, target: File) {
+    if (source.isDirectory) {
+      if (!target.exists) target.mkdir()
+
+      source.list.foreach { child =>
+        copy(new File(source, child), new File(target, child))
+      }
+    } else {
+      IO.copyFile(source, target)
+      if (source.canExecute) target.setExecutable(true)
+    }
+  }
+}
+
 object XitrumPlugin extends Plugin {
   // Must be lazy to avoid null error
   // xitrumPackageNeedsPackageBin must be after xitrumPackageTask
@@ -94,10 +112,6 @@ object XitrumPlugin extends Plugin {
     if (!from.exists) return
 
     val to = packageDir / fileName
-    if (from.isDirectory) IO.copyDirectory(from, to) else IO.copyFile(from, to)
-
-    // TODO: keep executable property (note: there may be subdirs)
-    //val files = to.listFiles
-    //if (files != null) files.foreach { _.setExecutable(true) }
+    PreserveExecutableIO.copy(from, to)
   }
 }
