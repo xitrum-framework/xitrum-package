@@ -43,7 +43,7 @@ object XitrumPlugin extends Plugin {
         val file = lib.data
 
         // Prevent copying directories in classpath, e.g. "config" directory
-        if (!file.isDirectory) IO.copyFile(file, libDir / file.name)
+        if (file.exists && !file.isDirectory) IO.copyFile(file, libDir / file.name)
       }
 
       // Copy .jar files created after running "sbt package" to lib directory
