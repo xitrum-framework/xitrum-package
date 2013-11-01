@@ -14,7 +14,7 @@ Add to project/plugins.sbt:
 
 ::
 
-  addSbtPlugin("tv.cntt" % "xitrum-package" % "1.5")
+  addSbtPlugin("tv.cntt" % "xitrum-package" % "1.6")
 
 Add to build.sbt:
 
@@ -62,7 +62,7 @@ Note that even when you don't need to copy anything, you have to write:
 
 ::
 
-  XitrumPlugin.copy()
+  XitrumPackage.copy()
 
 Multiple-module project
 -----------------------
@@ -70,7 +70,7 @@ Multiple-module project
 If your SBT project has
 `many modules (subprojects) <http://www.scala-sbt.org/0.13.0/docs/Getting-Started/Multi-Project.html>`_
 and you only want to ``xitrum-package`` several of them, you can skip the
-subproject you want using ``XitrumPlugin.skip``:
+subproject you want using ``XitrumPackage.skip``:
 
 ::
 
@@ -81,7 +81,7 @@ subproject you want using ``XitrumPlugin.skip``:
     base = file("module1"),
     settings = sharedSettings ++ Seq(
       name := "module1"
-    ) ++ XitrumPlugin.skip
+    ) ++ XitrumPackage.skip
   )
 
   lazy val app = Project(
@@ -89,7 +89,7 @@ subproject you want using ``XitrumPlugin.skip``:
     base = file("main-app"),
     settings = sharedSettings ++ Seq(
       name := "main-app"
-    ) ++ XitrumPlugin.copy("bin", "config", "public")
+    ) ++ XitrumPackage.copy("bin", "config", "public")
   ).dependsOn(module1)
 
 Example: https://github.com/ngocdaothanh/xitrum-multimodule-demo
@@ -99,8 +99,8 @@ Boot script
 
 You should create a shell script to start your Scala program like this:
 
-* `runner.sh <https://github.com/ngocdaothanh/xitrum-new/blob/master/bin/runner>`_ (for *nix)
-* `runner.bat <https://github.com/ngocdaothanh/xitrum-new/blob/master/bin/runner.bat>`_ (for Windows)
+* `runner.sh <https://github.com/ngocdaothanh/xitrum-new/blob/master/script/runner>`_ (for *nix)
+* `runner.bat <https://github.com/ngocdaothanh/xitrum-new/blob/master/script/runner.bat>`_ (for Windows)
 
 Run example:
 

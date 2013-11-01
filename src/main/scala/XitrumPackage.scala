@@ -21,7 +21,7 @@ object PreserveExecutableIO {
   }
 }
 
-object XitrumPlugin extends Plugin {
+object XitrumPackage extends Plugin {
   // Must be lazy to avoid null error
   // xitrumPackageNeedsPackageBin must be after xitrumPackageTask
   override lazy val settings = Seq(xitrumPackageTask, xitrumPackageNeedsPackageBin)
