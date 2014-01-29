@@ -20,7 +20,7 @@ Add to build.sbt:
 
 ::
 
-  XitrumPlugin.copy("dirToCopy", "fileToCopy")
+  XitrumPackage.copy("dirToCopy", "fileToCopy")
 
 Run:
 
