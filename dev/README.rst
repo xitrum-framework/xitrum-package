@@ -1,3 +1,7 @@
+For tips and tricks, see the presentation
+`Effective SBT <http://jsuereth.com/scala/2013/06/11/effective-sbt.html>`_
+by Josh Suereth.
+
 Publish to local
 ----------------
 
