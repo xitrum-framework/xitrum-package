@@ -8,7 +8,7 @@ version := "1.7-SNAPSHOT"
 
 // Kenji Yoshida (https://github.com/xuwei-k):
 // scalaVersion should not be specified for SBT plugin; use default scalaVersion
-//scalaVersion := "2.10.3"
+//scalaVersion := "2.10.4"
 
 scalacOptions ++= Seq("-deprecation", "-feature", "-unchecked")
 
