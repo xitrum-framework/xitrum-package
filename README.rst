@@ -5,7 +5,7 @@ solutions, the .jar files are left "as is".
 
 Supported SBT versions: 0.13
 
-xitrum-package is used in `Scala web framework Xitrum <http://ngocdaothanh.github.io/xitrum/>`_.
+xitrum-package is used in `Scala web framework Xitrum <http://xitrum-framework.github.io/xitrum/>`_.
 
 Usage
 -----
@@ -92,15 +92,15 @@ subproject you want using ``XitrumPackage.skip``:
     ) ++ XitrumPackage.copy("bin", "config", "public")
   ).dependsOn(module1)
 
-Example: https://github.com/ngocdaothanh/xitrum-multimodule-demo
+Example: https://github.com/xitrum-framework/xitrum-multimodule-demo
 
 Boot script
 -----------
 
 You should create a shell script to start your Scala program like this:
 
-* `runner.sh <https://github.com/ngocdaothanh/xitrum-new/blob/master/script/runner>`_ (for *nix)
-* `runner.bat <https://github.com/ngocdaothanh/xitrum-new/blob/master/script/runner.bat>`_ (for Windows)
+* `runner.sh <https://github.com/xitrum-framework/xitrum-new/blob/master/script/runner>`_ (for *nix)
+* `runner.bat <https://github.com/xitrum-framework/xitrum-new/blob/master/script/runner.bat>`_ (for Windows)
 
 Run example:
 
