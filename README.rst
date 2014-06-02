@@ -1,16 +1,40 @@
 This plugin adds task ``xitrum-package`` to your `SBT <http://www.scala-sbt.org/>`_
-project to collect all dependency .jar files for standalone Scala programs. Compared to
-`one-jar <http://www.scala-sbt.org/release/docs/Community/Community-Plugins#one-jar-plugins>`_
-solutions, the .jar files are left "as is".
+project to collect all dependency .jar files for standalone Scala programs.
 
-Supported SBT versions: 0.13
+Compared to
+`one-jar <http://www.scala-sbt.org/release/docs/Community/Community-Plugins#one-jar-plugins>`_
+solutions, xitrum-package is faster. It doesn't merge the .jar files together,
+the .jar files are left "as is".
 
 xitrum-package is used in `Scala web framework Xitrum <http://xitrum-framework.github.io/xitrum/>`_.
 
 Usage
 -----
 
-Add to project/plugins.sbt:
+Supported SBT versions: 0.13.x
+
+Suppose your project looks like this:
+
+::
+
+  build.sbt
+
+  project/
+    plugins.sbt
+
+  src/
+    ...
+
+  dirToCopy/      <-- Directory you want to copy to the packaged directory
+    file1
+    file2
+
+  fileToCopy      <-- File you want to copy to the packaged directory
+
+Add xitrum-package to your project
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Add to ``project/plugins.sbt``:
 
 ::
 
@@ -22,43 +46,35 @@ Add to build.sbt:
 
   XitrumPackage.copy("dirToCopy", "fileToCopy")
 
+Do the packaging
+~~~~~~~~~~~~~~~~
+
 Run:
 
 ::
 
   sbt xitrum-package
 
-All dependency .jar files and .jar files generated from your project
-will be copied to ``target/xitrum`` directory.
+All dependency .jar files and .jar files generated from your project will be
+copied to directory ``target/xitrum``:
 
 ::
 
-  project/
-    plugins.sbt
-
-  src/
-    ...
-
-  dirToCopy/      <-- Directory to copy
-    file1
-    file2
-
-  fileToCopy      <-- File to copy
-
   target/
     xitrum/
-      lib/        <-- .jar files will be collected here
+      lib/        <-- Dependency .jar files are collected here
         dep1.jar
         dep2.jar
-        project.jar
+        yourProject.jar
 
-      dirToCopy/  <-- Directory will be copied here
+      dirToCopy/  <-- The specified directory is copied here
         file1
         file2
 
-      fileToCopy  <-- File will be copied here
+      fileToCopy  <-- The specified file is copied here
 
-Note that even when you don't need to copy anything, you have to write:
+Note that even when you don't need to copy anything, you have to write in
+build.sbt:
 
 ::
 
@@ -68,7 +84,7 @@ Multiple-module project
 -----------------------
 
 If your SBT project has
-`many modules (subprojects) <http://www.scala-sbt.org/0.13.0/docs/Getting-Started/Multi-Project.html>`_
+`many modules (subprojects) <http://www.scala-sbt.org/0.13.5/docs/Getting-Started/Multi-Project.html>`_
 and you only want to ``xitrum-package`` several of them, you can skip the
 subproject you want using ``XitrumPackage.skip``:
 
