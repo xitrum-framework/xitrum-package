@@ -6,7 +6,7 @@ Compared to
 solutions, xitrum-package is faster. It doesn't merge the .jar files together,
 the .jar files are left "as is".
 
-xitrum-package is used in `Scala web framework Xitrum <http://xitrum-framework.github.io/xitrum/>`_.
+xitrum-package is used in `Scala web framework Xitrum <http://xitrum-framework.github.io/>`_.
 
 Usage
 -----
