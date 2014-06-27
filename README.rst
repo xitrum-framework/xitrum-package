@@ -8,6 +8,8 @@ the .jar files are left "as is".
 
 xitrum-package is used in `Scala web framework Xitrum <http://xitrum-framework.github.io/>`_.
 
+Alternatively, you can also use `sbt-pack <https://github.com/xerial/sbt-pack>`_.
+
 Usage
 -----
 
