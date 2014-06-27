@@ -26,9 +26,15 @@ object XitrumPackage extends Plugin {
   // xitrumPackageNeedsPackageBin must be after xitrumPackageTask
   override lazy val settings = Seq(xitrumPackageTask, xitrumPackageNeedsPackageBin)
 
-  val skipKey = SettingKey[Boolean]("xitrum-skip", "Do not package the current project (useful when you use SBT multiproject feature)")
+  val skipKey = SettingKey[Boolean](
+    "xitrum-skip",
+     "Do not package the current project (useful when you use SBT multiproject feature)"
+  )
 
-  val copiesKey = SettingKey[Seq[String]]("xitrum-copies", "List of files and directories to copy")
+  val copiesKey = SettingKey[Seq[String]](
+    "xitrum-copies",
+    "List of files and directories to copy"
+  )
 
   val skip = Seq(skipKey := true, copiesKey := Seq())
 
@@ -36,7 +42,10 @@ object XitrumPackage extends Plugin {
 
   //----------------------------------------------------------------------------
 
-  val xitrumPackageKey = TaskKey[Unit]("xitrum-package", "Packages to target/xitrum directory, ready for deploying to production server")
+  val xitrumPackageKey = TaskKey[Unit](
+    "xitrum-package",
+    "Packages to target/xitrum directory, ready for deploying to production server"
+  )
 
   // Must be lazy to avoid null error
   lazy val xitrumPackageTask = xitrumPackageKey <<=
@@ -54,11 +63,18 @@ object XitrumPackage extends Plugin {
     }
   }
 
-  val xitrumPackageNeedsPackageBin = xitrumPackageKey <<= xitrumPackageKey.dependsOn(packageBin in Compile)
+  val xitrumPackageNeedsPackageBin = xitrumPackageKey <<=
+    xitrumPackageKey.dependsOn(packageBin in Compile)
 
   //----------------------------------------------------------------------------
 
-  private def doPackage(libs: Seq[Attributed[File]], baseDir: File, targetDir: File, jarOutputDir: File, copyFileNames: Seq[String]) {
+  private def doPackage(
+    libs:         Seq[Attributed[File]],
+    baseDir:      File,
+    targetDir:    File,
+    jarOutputDir: File,
+    copyFileNames: Seq[String]
+  ) {
     val packageDir = targetDir / "xitrum"
     deleteFileOrDirectory(packageDir)
     packageDir.mkdirs()
@@ -71,7 +87,7 @@ object XitrumPackage extends Plugin {
       if (file.exists) {
         if (file.isDirectory) {
           // This dependency may be "classes" directory from SBT multimodule (multiproject)
-          // http://www.scala-sbt.org/0.13.0/docs/Getting-Started/Multi-Project.html
+          // http://www.scala-sbt.org/0.13.5/docs/Getting-Started/Multi-Project.html
           //
           // Ex:
           // /Users/ngoc/src/xitrum-multimodule-demo/module1/target/scala-2.10/classes
