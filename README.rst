@@ -40,7 +40,7 @@ Add to ``project/plugins.sbt``:
 
 ::
 
-  addSbtPlugin("tv.cntt" % "xitrum-package" % "1.6")
+  addSbtPlugin("tv.cntt" % "xitrum-package" % "1.7")
 
 Add to build.sbt:
 
@@ -82,18 +82,22 @@ build.sbt:
 
   XitrumPackage.copy()
 
-Multiple-module project
------------------------
+Multimodule project
+-------------------
 
 If your SBT project has
 `many modules (subprojects) <http://www.scala-sbt.org/0.13.5/docs/Getting-Started/Multi-Project.html>`_
-and you only want to ``xitrum-package`` several of them, you can skip the
-subproject you want using ``XitrumPackage.skip``:
+and you want to only ``xitrum-package`` several of them, you can use ``XitrumPackage.skip``:
 
 ::
 
+  // Shared settings used by many modules
   val sharedSettings = ...
 
+  // For the default root project
+  override lazy val settings = super.settings ++ XitrumPackage.skip
+
+  // If you want to skip this module
   lazy val module1 = Project(
     id = "module1",
     base = file("module1"),
@@ -102,6 +106,7 @@ subproject you want using ``XitrumPackage.skip``:
     ) ++ XitrumPackage.skip
   )
 
+  // If you want to xitrum-package this module
   lazy val app = Project(
     id = "main-app",
     base = file("main-app"),
