@@ -40,7 +40,7 @@ Add to ``project/plugins.sbt``:
 
 ::
 
-  addSbtPlugin("tv.cntt" % "xitrum-package" % "1.7")
+  addSbtPlugin("tv.cntt" % "xitrum-package" % "1.8")
 
 Add to build.sbt:
 

@@ -126,10 +126,11 @@ object XitrumPackage extends Plugin {
   }
 
   private def doCopy(fileName: String, baseDir: File, packageDir: File) {
-    val from = baseDir / fileName
+    val file = new File(fileName)
+    val from = if (file.isAbsolute) file else baseDir / fileName
     if (!from.exists) return
 
-    val to = packageDir / fileName
+    val to = packageDir / file.name
     PreserveExecutableIO.copy(from, to)
   }
 
