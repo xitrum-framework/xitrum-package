@@ -1,5 +1,3 @@
-import java.io.File
-
 import sbt._
 import Keys._
 
@@ -24,7 +22,7 @@ object PreserveExecutableIO {
 object XitrumPackage extends Plugin {
   // Must be lazy to avoid null error
   // xitrumPackageNeedsPackageBin must be after xitrumPackageTask
-  override lazy val settings = Seq(xitrumPackageTask, xitrumPackageNeedsPackageBin)
+  override lazy val settings = Seq(xitrumPackageTask, xitrumPackageNeedsPackageBin, projectJarsTask)
 
   val skipKey = SettingKey[Boolean](
     "xitrum-skip",
@@ -52,10 +50,10 @@ object XitrumPackage extends Plugin {
     // dependencyClasspath: both internalDependencyClasspath and externalDependencyClasspath
     // internalDependencyClasspath ex: classes directories
     // externalDependencyClasspath ex: .jar files
-    (dependencyClasspath in Runtime, baseDirectory, target,    crossTarget,  skipKey, copiesKey) map {
-    (libs,                           baseDir,       targetDir, jarOutputDir, skip,    copyFileNames) =>
+    (skipKey, dependencyClasspath in Runtime, projectJarsKey, baseDirectory, target,    crossTarget,  copiesKey) map {
+    (skip,    libs,                           projectJars,    baseDir,       targetDir, jarOutputDir, copyFileNames) =>
     try {
-      if (!skip) doPackage(libs, baseDir, targetDir, jarOutputDir, copyFileNames)
+      if (!skip) doPackage(libs, projectJars, baseDir, targetDir, jarOutputDir, copyFileNames)
     } catch {
       case e: Exception =>
         println("xitrum-package failed, reason:")
@@ -69,10 +67,11 @@ object XitrumPackage extends Plugin {
   //----------------------------------------------------------------------------
 
   private def doPackage(
-    libs:         Seq[Attributed[File]],
-    baseDir:      File,
-    targetDir:    File,
-    jarOutputDir: File,
+    libs:          Seq[Attributed[File]],
+    projectJars:   Seq[File],
+    baseDir:       File,
+    targetDir:     File,
+    jarOutputDir:  File,
     copyFileNames: Seq[String]
   ) {
     val packageDir = targetDir / "xitrum"
@@ -110,6 +109,9 @@ object XitrumPackage extends Plugin {
     // (see xitrumPackageNeedsPackageBin)
     (jarOutputDir * "*.jar").get.foreach { f => IO.copyFile(f, libDir / f.name) }
 
+    // Copy .jar files of dependency modules/projects
+    projectJars.foreach { f => IO.copyFile(f, libDir / f.name) }
+
     copyFileNames.foreach { fName => doCopy(fName, baseDir, packageDir) }
 
     println("Packaged to " + packageDir)
@@ -129,5 +131,22 @@ object XitrumPackage extends Plugin {
 
     val to = packageDir / fileName
     PreserveExecutableIO.copy(from, to)
+  }
+
+  // https://github.com/xerial/sbt-pack/blob/develop/src/main/scala/xerial/sbt/Pack.scala
+
+  val projectJarsKey = TaskKey[Seq[File]]("xitrum-project-jars")
+
+  lazy val projectJarsTask = projectJarsKey <<= (thisProjectRef, buildStructure) flatMap getFromSelectedProjects(packageBin in Runtime)
+
+  private def getFromSelectedProjects[T](targetTask: TaskKey[T])(currentProject: ProjectRef, structure: BuildStructure): Task[Seq[T]] = {
+    def allProjectRefs(currentProject: ProjectRef): Seq[ProjectRef] = {
+      val children = Project.getProject(currentProject, structure).toSeq.flatMap { p => p.uses }
+      currentProject +: (children flatMap (allProjectRefs(_)))
+    }
+
+    val projects = allProjectRefs(currentProject).distinct
+    val seq      = projects.map(p => (Def.task {((targetTask in p).value, p)}) evaluate structure.data).join
+    seq.map(_.map(_._1))
   }
 }
