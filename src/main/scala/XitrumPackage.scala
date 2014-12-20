@@ -7,6 +7,15 @@ object PreserveExecutableIO {
   // http://stackoverflow.com/questions/5368724
   def copy(source: File, target: File) {
     if (source.isDirectory) {
+      // Skip if source is a symlink that points to its ancestor directory:
+      // https://github.com/xitrum-framework/xitrum-package/issues/12
+      val abs    = source.getAbsolutePath
+      val canAbs = source.getCanonicalFile.getCanonicalPath
+      if (abs != canAbs && abs.startsWith(canAbs)) {
+        println(s"Skip: $abs -> $canAbs")
+        return
+      }
+
       if (!target.exists) target.mkdir()
 
       source.list.foreach { child =>
