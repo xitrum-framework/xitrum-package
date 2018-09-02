@@ -38,9 +38,7 @@ Add to ``project/plugins.sbt``:
 
 ::
 
-  addSbtPlugin("tv.cntt" % "xitrum-package" % "2.0.0")
-
-Use xitrum-package 1.9 if you use SBT 0.13.x.
+  addSbtPlugin("tv.cntt" % "xitrum-package" % "1.9")
 
 Add to build.sbt:
 
