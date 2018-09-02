@@ -1,11 +1,9 @@
 import sbt._
 import Keys._
 
-// See https://github.com/sbt/sbt/issues/944
-// Add option preserveExecutable to IO.copyFile and IO.copyDirectory
-object PreserveExecutableIO {
-  // http://stackoverflow.com/questions/5368724
+object CopyUtil {
   def copy(source: File, target: File) {
+    // http://stackoverflow.com/questions/5368724
     if (source.isDirectory) {
       // Skip if source is a symlink that points to its ancestor directory:
       // https://github.com/xitrum-framework/xitrum-package/issues/12
@@ -23,23 +21,24 @@ object PreserveExecutableIO {
       }
     } else {
       IO.copyFile(source, target)
-      if (source.canExecute) target.setExecutable(true)
     }
   }
 }
 
-object XitrumPackage extends Plugin {
-  // Must be lazy to avoid null error
-  // xitrumPackageNeedsPackageBin must be after xitrumPackageTask
-  override lazy val settings = Seq(xitrumPackageTask, xitrumPackageNeedsPackageBin, projectJarsTask)
+object XitrumPackage extends AutoPlugin {
+  override def trigger = allRequirements
+
+  // - Must be lazy to avoid null error
+  // - xitrumPackageNeedsPackageBin must be after xitrumPackageTask
+  override lazy val projectSettings = Seq(xitrumPackageTask, xitrumPackageNeedsPackageBin, projectJarsTask)
 
   val skipKey = SettingKey[Boolean](
-    "xitrum-skip",
+    "xitrumSkip",
      "Do not package the current project (useful when you use SBT multiproject feature)"
   )
 
   val copiesKey = SettingKey[Seq[String]](
-    "xitrum-copies",
+    "xitrumCopies",
     "List of files and directories to copy"
   )
 
@@ -50,28 +49,35 @@ object XitrumPackage extends Plugin {
   //----------------------------------------------------------------------------
 
   val xitrumPackageKey = TaskKey[Unit](
-    "xitrum-package",
-    "Packages to target/xitrum directory, ready for deploying to production server"
+    "xitrumPackage",
+    "Packages to target/xitrum directory, ready for deploying to production server",
+    KeyRanks.ATask  // This task is listed with command "sbt tasks"
   )
 
   // Must be lazy to avoid null error
-  lazy val xitrumPackageTask = xitrumPackageKey <<=
+  lazy val xitrumPackageTask = xitrumPackageKey := {
     // dependencyClasspath: both internalDependencyClasspath and externalDependencyClasspath
     // internalDependencyClasspath ex: classes directories
     // externalDependencyClasspath ex: .jar files
-    (skipKey, dependencyClasspath in Runtime, projectJarsKey, baseDirectory, target,    crossTarget,  copiesKey) map {
-    (skip,    libs,                           projectJars,    baseDir,       targetDir, jarOutputDir, copyFileNames) =>
     try {
+      val skip = skipKey.value
+      val libs = (dependencyClasspath in Runtime).value
+      val projectJars = projectJarsKey.value
+      val baseDir = baseDirectory.value
+      val targetDir = target.value
+      val jarOutputDir = crossTarget.value
+      val copyFileNames = copiesKey.value
       if (!skip) doPackage(libs, projectJars, baseDir, targetDir, jarOutputDir, copyFileNames)
     } catch {
       case e: Exception =>
-        println("xitrum-package failed, reason:")
+        println("xitrumPackage failed, reason:")
         e.printStackTrace()
     }
   }
 
-  val xitrumPackageNeedsPackageBin = xitrumPackageKey <<=
-    xitrumPackageKey.dependsOn(packageBin in Compile)
+  lazy val xitrumPackageNeedsPackageBin = (
+    xitrumPackageKey := xitrumPackageKey.dependsOn(packageBin in Compile).value
+  )
 
   //----------------------------------------------------------------------------
 
@@ -140,23 +146,34 @@ object XitrumPackage extends Plugin {
     if (!from.exists) return
 
     val to = packageDir / file.name
-    PreserveExecutableIO.copy(from, to)
+    CopyUtil.copy(from, to)
   }
 
-  // https://github.com/xerial/sbt-pack/blob/develop/src/main/scala/xerial/sbt/Pack.scala
+  // https://github.com/xerial/sbt-pack/blob/master/src/main/scala/xerial/sbt/pack/PackPlugin.scala
 
-  val projectJarsKey = TaskKey[Seq[File]]("xitrum-project-jars")
+  val projectJarsKey = TaskKey[Seq[File]]("xitrumProjectJars")
 
-  lazy val projectJarsTask = projectJarsKey <<= (thisProjectRef, buildStructure) flatMap getFromSelectedProjects(packageBin in Runtime)
+  lazy val projectJarsTask = projectJarsKey := {
+    Def.taskDyn {
+      val libJars = getFromSelectedProjects(thisProjectRef.value, packageBin in Runtime, state.value)
+      Def.task { libJars.value.map(_._1) }
+    }.value
+  }
 
-  private def getFromSelectedProjects[T](targetTask: TaskKey[T])(currentProject: ProjectRef, structure: BuildStructure): Task[Seq[T]] = {
-    def allProjectRefs(currentProject: ProjectRef): Seq[ProjectRef] = {
-      val children = Project.getProject(currentProject, structure).toSeq.flatMap { p => p.uses }
-      currentProject +: (children flatMap (allProjectRefs(_)))
+  private def getFromSelectedProjects[T](contextProject: ProjectRef, targetTask: TaskKey[T], state: State): Task[Seq[(T, ProjectRef)]] = {
+    val extracted = Project.extract(state)
+    val structure = extracted.structure
+
+    def transitiveDependencies(currentProject: ProjectRef): Seq[ProjectRef] = {
+      // Traverse all dependent projects
+      val children = Project
+              .getProject(currentProject, structure)
+              .toSeq
+              .flatMap{ _.dependencies.map(_.project) }
+
+      currentProject +: (children flatMap (transitiveDependencies(_)))
     }
-
-    val projects = allProjectRefs(currentProject).distinct
-    val seq      = projects.map(p => (Def.task {((targetTask in p).value, p)}) evaluate structure.data).join
-    seq.map(_.map(_._1))
+    val projects = transitiveDependencies(contextProject).distinct
+    projects.map(p => (Def.task { ((targetTask in p).value, p) }) evaluate structure.data).join
   }
 }

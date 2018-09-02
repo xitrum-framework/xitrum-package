@@ -1,4 +1,4 @@
-This plugin adds task ``xitrum-package`` to your `SBT <http://www.scala-sbt.org/>`_
+This plugin adds task ``xitrumPackage`` to your `SBT <http://www.scala-sbt.org/>`_
 project to collect all dependency .jar files for standalone Scala programs.
 
 Compared to
@@ -8,12 +8,10 @@ the .jar files are left "as is".
 
 xitrum-package is used in `Scala web framework Xitrum <http://xitrum-framework.github.io/>`_.
 
-Alternatively, you can also use `sbt-pack <https://github.com/xerial/sbt-pack>`_.
+Alternatively, you can use `sbt-pack <https://github.com/xerial/sbt-pack>`_.
 
 Usage
 -----
-
-Supported SBT versions: 0.13.x
 
 Suppose your project looks like this:
 
@@ -40,7 +38,9 @@ Add to ``project/plugins.sbt``:
 
 ::
 
-  addSbtPlugin("tv.cntt" % "xitrum-package" % "1.9")
+  addSbtPlugin("tv.cntt" % "xitrum-package" % "2.0.0")
+
+Use xitrum-package 1.9 if you use SBT 0.13.x.
 
 Add to build.sbt:
 
@@ -55,7 +55,7 @@ Run:
 
 ::
 
-  sbt xitrum-package
+  sbt xitrumPackage
 
 All dependency .jar files and .jar files generated from your project will be
 copied to directory ``target/xitrum``:
@@ -87,7 +87,7 @@ Multimodule project
 
 If your SBT project has
 `many modules (subprojects) <http://www.scala-sbt.org/0.13.5/docs/Getting-Started/Multi-Project.html>`_
-and you want to only ``xitrum-package`` several of them, you can use ``XitrumPackage.skip``:
+and you want to add ``xitrum-package`` to only several of them, you can use ``XitrumPackage.skip``:
 
 ::
 
@@ -129,4 +129,4 @@ Run example:
 
 ::
 
-  runner.sh my_package.MyMainClass
+  runner.sh mypackage.MyMainClass

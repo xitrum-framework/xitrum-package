@@ -1,3 +1,8 @@
+2.0.0:
+
+* `#13 <https://github.com/xitrum-framework/xitrum-package/issues/13>`_
+  Support SBT 1.x
+
 1.9:
 
 * `#12 <https://github.com/xitrum-framework/xitrum-package/issues/12>`_
